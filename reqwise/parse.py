@@ -21,5 +21,7 @@ def create_parser():
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--debug', required=False, action='store_true',
                         dest="debug", help='debug flag')
+    parser.add_argument('--path', required=False, dest="path",
+                        help='Path for requirements files')
 
     return parser

@@ -11,14 +11,28 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import logging
 import os
+
+from requirement import Requirement
+import utils
+
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+logger = logging.getLogger()
 
 
 class Manager(object):
 
-    def __init__(self, path=os.getcwd()):
-        os.path = path
+    def __init__(self, path=None):
+        self.path = path or os.getcwd()
+        self.req_files = utils.find_req_files(self.path)
 
     def get_requirements(self):
         """Returns list of requirement objects."""
-        return []
+        requirements = []
+        for req_file in self.req_files:
+            with open(req_file, 'r') as req_f:
+                for req in req_f:
+                    requirements.append(Requirement(req.strip()))
+
+        return requirements

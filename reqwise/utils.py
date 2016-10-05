@@ -11,29 +11,8 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-import sys
+import glob
 
-from manager import Manager
-import parse
-
-
-def main():
-    """Reqwise Main Entry."""
-
-    # Parse arguments provided by the user
-    parser = parse.create_parser()
-    args = parser.parse_args()
-
-    if hasattr(args, 'path'):
-        manager = Manager(args.path)
-    else:
-        manager = Manager()
-
-    reqs = manager.get_requirements()
-
-    for requirement in reqs:
-        print requirement.name
-
-
-if __name__ == '__main__':
-    sys.exit(main())
+def find_req_files(path):
+    """Returns list of absolute paths of the requirement files."""
+    return glob.glob(path + '/*requirements*')
