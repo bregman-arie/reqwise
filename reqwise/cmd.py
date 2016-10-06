@@ -24,15 +24,13 @@ def main():
     parser = parse.create_parser()
     args = parser.parse_args()
 
+    # Create manager
     if hasattr(args, 'path'):
         manager = Manager(args.path)
     else:
         manager = Manager()
 
-    reqs = manager.get_requirements()
-
-    for requirement in reqs:
-        print requirement.name
+    manager.anaylze()
 
 
 if __name__ == '__main__':
