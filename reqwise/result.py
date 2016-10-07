@@ -12,39 +12,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 import logging
-import sys
-
-from manager import Manager
-import parse
 
 LOG = logging.getLogger(__name__)
 
 
-def setup_logging(debug):
-    """Sets the logging."""
-    if debug:
-        LOG.setLevel(logging.DEBUG)
-    else:
-        LOG.setLevel(logging.INFO)
+class Result(object):
 
-
-def main():
-    """Reqwise Main Entry."""
-
-    # Parse arguments provided by the user
-    parser = parse.create_parser()
-    args = parser.parse_args()
-
-    setup_logging(args.debug)
-
-    # Create manager
-    if hasattr(args, 'path'):
-        manager = Manager(args.path)
-    else:
-        manager = Manager()
-
-    manager.anaylze()
-
-
-if __name__ == '__main__':
-    sys.exit(main())
+    def __init__(self):
+        self.versio = version
+        self.arch = arch

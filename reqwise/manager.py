@@ -20,6 +20,7 @@ import utils
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 logger = logging.getLogger()
+LOG = logging.getLogger(__name__)
 
 
 class Manager(object):
@@ -66,5 +67,9 @@ class Manager(object):
 
         result = []
         for source in self.sources:
-            for req in self.requirements:
-                result.append(source.find(req))
+            if source.ready:
+                LOG.info("Source: {}".format(source.name))
+                for req in self.requirements:
+                    result.append(source.search(req))
+            else:
+                LOG.debug("Source: %s is disabled", source.name)

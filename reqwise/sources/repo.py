@@ -14,21 +14,35 @@
 import logging
 import yum
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
-logger = logging.getLogger()
+LOG = logging.getLogger('__main__')
+
 
 class Yum(object):
     """Represents the local defined repositories."""
 
-    def __init__(self, repos='all'):
+    def __init__(self, repos='all', disabled=False, fields=['name']):
         self.name = 'yum'
         self.repos = repos
         self.yum = yum.YumBase()
         self.repos = (self.yum).repos.listEnabled()
+        self.ready = self.setup()
+        self.disabled = disabled
+        self.fields = fields
 
-    def find(self, req):
-        """Search for requirement with yum."""
-        if not len(self.repos):
-            logger.info("No repos enabled. Skipping yum check...")
-        else:
-            logger.info("Looking for {}".format(req.name))
+    def setup(self):
+        """Returns bool to indicate whether the source is ready
+
+           or not.
+        """
+        return len(self.repos)
+
+    def search(self, req):
+        """Search for requirement with yum.
+
+        Returns {'found': True/False }
+        """
+        LOG.debug("Looking for %s", req.name)
+
+        result = (self.yum).searchGenerator(self.fields, [req.name])
+        for (package, matched_value) in result:
+            LOG.info(package)
