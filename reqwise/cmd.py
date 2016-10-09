@@ -43,7 +43,7 @@ def main():
     else:
         manager = Manager()
 
-    manager.anaylze()
+    manager.start()
 
 
 if __name__ == '__main__':

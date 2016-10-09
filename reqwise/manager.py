@@ -15,7 +15,8 @@ import logging
 import os
 
 from requirement import Requirement
-from sources.repo import Yum
+from result import Result
+from sources.dnf import Yum
 import utils
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -37,6 +38,7 @@ class Manager(object):
         self.req_files = utils.find_req_files(self.path)
         self.requirements = self.get_requirements()
         self.sources = self.get_sources()
+        self.results = {}
 
     def get_requirements(self):
         """Returns list of requirement objects."""
@@ -54,7 +56,7 @@ class Manager(object):
             return []
         else:
             return [Yum()]
-        
+
     def get_config(self):
         """Returns config file path."""
         if os.path.isfile(os.getcwd() + '/reqwise.conf'):
@@ -62,14 +64,16 @@ class Manager(object):
         else:
             return os.path.isfile('/etc/reqwise/reqwise.conf')
 
-    def anaylze(self):
-        """Search for requirements in the different sources."""
+    def start(self):
+        """Start searching for all the requirements in all the sources."""
 
-        result = []
-        for source in self.sources:
-            if source.ready:
-                LOG.info("Source: {}".format(source.name))
-                for req in self.requirements:
-                    result.append(source.search(req))
-            else:
-                LOG.debug("Source: %s is disabled", source.name)
+        for req in self.requirements:
+            self.results[req.name] = []
+            for source in self.sources:
+                if source.ready:
+                    source_results = source.search(req)
+                else:
+                    LOG.debug("Source: %s is disabled", source.name)
+            (self.results[req.name]).extend(source_results)
+
+        Result.report(self.results)
