@@ -16,12 +16,11 @@ import os
 
 from requirement import Requirement
 from result import Result
+from sources.copr import Copr
 from sources.dnf import Yum
 import utils
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
-logger = logging.getLogger()
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('__main__')
 
 
 class Manager(object):
@@ -32,13 +31,14 @@ class Manager(object):
        Reads the requirements.
        Search for requirements in the different sources.
     """
-    def __init__(self, path=None, conf=None):
-        self.path = path or os.getcwd()
-        self.config = conf or self.get_config()
+    def __init__(self, args):
+        self.results = {}
+        self.path = args.path or os.getcwd()
+        self.config = self.get_config()
         self.req_files = utils.find_req_files(self.path)
         self.requirements = self.get_requirements()
+        self.copr_repos = args.copr_repos or None
         self.sources = self.get_sources()
-        self.results = {}
 
     def get_requirements(self):
         """Returns list of requirement objects."""
@@ -47,6 +47,7 @@ class Manager(object):
             with open(req_file, 'r') as req_f:
                 for req in req_f:
                     requirements.append(Requirement(req.strip()))
+                    self.results[requirements[-1].name] = []
 
         return requirements
 
@@ -55,7 +56,7 @@ class Manager(object):
         if self.config:
             return []
         else:
-            return [Yum()]
+            return [Yum(), Copr(self.copr_repos)]
 
     def get_config(self):
         """Returns config file path."""
@@ -68,12 +69,12 @@ class Manager(object):
         """Start searching for all the requirements in all the sources."""
 
         for req in self.requirements:
-            self.results[req.name] = []
             for source in self.sources:
-                if source.ready:
+                if source.ready and not source.disabled:
+                    LOG.debug("Looking in source: %s", source.name)
                     source_results = source.search(req)
+                    (self.results[req.name]).extend(source_results)
                 else:
                     LOG.debug("Source: %s is disabled", source.name)
-            (self.results[req.name]).extend(source_results)
 
         Result.report(self.results)

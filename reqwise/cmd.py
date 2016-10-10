@@ -17,6 +17,7 @@ import sys
 from manager import Manager
 import parse
 
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 LOG = logging.getLogger(__name__)
 
 
@@ -37,12 +38,8 @@ def main():
 
     setup_logging(args.debug)
 
-    # Create manager
-    if hasattr(args, 'path'):
-        manager = Manager(args.path)
-    else:
-        manager = Manager()
-
+    # Create and start THE manager
+    manager = Manager(args)
     manager.start()
 
 

@@ -34,12 +34,17 @@ An example for configration file:
 Supported Sources
 -----------------
 
-None ATM :D
+- YUM/DNF (system defined repositories)
+- COPR    (https://copr.fedorainfracloud.org)
 
 
 Examples
 --------
 
-To analyse the default requirements files in your current directory:
+Search for the default requirements files in the current directory:
 
     reqwise
+
+Search the requirements in COPR:
+
+    reqwise --copr el7-rhos9-test-deps

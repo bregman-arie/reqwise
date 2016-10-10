@@ -66,7 +66,6 @@ class Yum(object):
 
         match the requirement name.
         """
-        LOG.debug("Looking for %s", req.name)
         found_pkgs = []
 
         match = (self.yum).searchGenerator(self.fields, [req.name])
