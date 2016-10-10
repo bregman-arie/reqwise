@@ -37,7 +37,7 @@ class Manager(object):
         self.config = self.get_config()
         self.req_files = utils.find_req_files(self.path)
         self.requirements = self.get_requirements()
-        self.copr_repos = args.copr_repos or None
+        self.copr_projects = args.copr_projects or None
         self.sources = self.get_sources()
 
     def get_requirements(self):
@@ -56,7 +56,7 @@ class Manager(object):
         if self.config:
             return []
         else:
-            return [Yum(), Copr(self.copr_repos)]
+            return [Yum(), Copr(self.copr_projects)]
 
     def get_config(self):
         """Returns config file path."""
