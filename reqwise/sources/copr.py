@@ -11,11 +11,13 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-from urlparse import urlparse
 from urlparse import urljoin
+from urlparse import urlparse
 
 import logging
 import requests
+
+from common.utils import verify_name
 
 LOG = logging.getLogger('__main__')
 
@@ -40,10 +42,19 @@ class Copr(object):
 
     def get_project_id(self, name):
         """Returns COPR project id based on the name."""
-        project_data_url = urljoin(
-            self.copr.geturl(), '/api_2/projects?name=' + self.projects)
+        project_data_url = urljoin(self.copr.geturl(),
+                                   '/api_2/projects?name=' + self.projects)
         project_data = (requests.get(project_data_url)).json()
+
         return project_data['projects'][0]['project']['id']
+
+    def get_built_packages(self, id):
+        """Returns built packages based1 on the provided ID."""
+        built_pkgs_url = urljoin(self.copr.geturl(),
+                                 '/api_2/builds?project_id=' + str(id))
+        built_pkgs = (requests.get(built_pkgs_url)).json()
+
+        return built_pkgs['builds']
 
     def search(self, req):
         """Returns list of Result object based on the RPMs it found that
@@ -51,4 +62,10 @@ class Copr(object):
            match the requirement name.
         """
         project_id = self.get_project_id(self.projects)
-        print project_id
+        built_pkgs = self.get_built_packages(project_id)
+
+        for pkg in built_pkgs:
+            name =  pkg['build']['built_packages'][0]['name']
+            if verify_name(str(name), req.name):
+
+

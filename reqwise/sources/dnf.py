@@ -15,7 +15,7 @@ import logging
 import re
 import yum
 
-import common.constants as const
+from common.utils import verify_name
 from result import Result
 
 LOG = logging.getLogger('__main__')
@@ -40,27 +40,6 @@ class Yum(object):
         """
         return len(self.repos)
 
-    def verify_name(self, match, req):
-        """Verify the match is indeed the package we searched for.
-
-        The problem with yum search is that it simply searches for the
-        string in the name, but not the exact match.
-
-        Also, requirement might be called 'hacking' while the RPM is
-        'python-hacking'.
-        """
-        m = re.search(r'(^[a-zA-z0-9\-]*)\-\d', match)
-        return m.group(1) in [prefix+req for prefix in const.PREFIXES]
-
-    def get_match_details(self, match):
-        """Returns version, os and arch strings."""
-        name = re.search(r'(^[a-zA-z0-9\-]*)\-\d', match)
-        version = re.search(r'((\d+\.)+\d+(\-\d+))', match)
-        os = re.search(r'\.([a-z]+[0-9]{1,2})', match)
-        arch = re.search(r'.([a-zA-Z]+)$', match)
-
-        return name.group(1), version.group(1), os.group(1), arch.group(1)
-
     def search(self, req):
         """Returns list of Result object based on the RPMs it found that
 
@@ -70,7 +49,7 @@ class Yum(object):
 
         match = (self.yum).searchGenerator(self.fields, [req.name])
         for (full_string, pkg_name) in match:
-            if self.verify_name(str(full_string), req.name):
+            if verify_name(str(full_string), req.name):
                 name, version, os, arch = self.get_match_details(
                     str(full_string))
                 found_pkgs.append(Result(name, version, os, arch, self.name))
