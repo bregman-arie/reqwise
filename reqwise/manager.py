@@ -18,6 +18,7 @@ from requirement import Requirement
 from result import Result
 from sources.copr import Copr
 from sources.dnf import Yum
+from sources.koji import Koji
 import utils
 
 LOG = logging.getLogger('__main__')
@@ -56,7 +57,7 @@ class Manager(object):
         if self.config:
             return []
         else:
-            return [Yum(), Copr(self.copr_projects)]
+            return [Yum(), Copr(self.copr_projects), Koji()]
 
     def get_config(self):
         """Returns config file path."""

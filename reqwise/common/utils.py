@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 import re
+import subprocess
 
 import common.constants as const
 
@@ -28,6 +29,7 @@ def verify_name(rpm_name, req):
     """
     return rpm_name in [prefix+req for prefix in const.PREFIXES]
 
+
 def get_rpm_details(rpm):
     """Returns the name, version, os and arch of the given RPM string."""
 
@@ -37,3 +39,8 @@ def get_rpm_details(rpm):
     arch = re.search(r'.([a-zA-Z]+)$', rpm)
 
     return name.group(1), version.group(1), os.group(1), arch.group(1)
+
+
+def cmd_exists(cmd):
+    return subprocess.call("type " + cmd, shell=True,
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0

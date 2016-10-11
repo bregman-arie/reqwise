@@ -36,6 +36,7 @@ Supported Sources
 
 - YUM/DNF (system defined repositories)
 - COPR    (https://copr.fedorainfracloud.org)
+- Koji    (http://koji.fedoraproject.org)
 
 
 Examples
