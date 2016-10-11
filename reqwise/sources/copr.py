@@ -17,7 +17,8 @@ from urlparse import urlparse
 import logging
 import requests
 
-from common.utils import verify_name
+import common.utils as utils
+from result import Result
 
 LOG = logging.getLogger('__main__')
 
@@ -61,11 +62,14 @@ class Copr(object):
 
            match the requirement name.
         """
+        found_pkgs = []
         project_id = self.get_project_id(self.projects)
         built_pkgs = self.get_built_packages(project_id)
 
         for pkg in built_pkgs:
-            name =  pkg['build']['built_packages'][0]['name']
-            if verify_name(str(name), req.name):
+            version = pkg['build']['built_packages'][0]['version']
+            name = pkg['build']['built_packages'][0]['name']
+            if utils.verify_name(str(name), req.name):
+                found_pkgs.append(Result(name, version, self.name))
 
-
+        return found_pkgs

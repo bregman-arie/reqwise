@@ -15,7 +15,7 @@ import logging
 import re
 import yum
 
-from common.utils import verify_name
+import common.utils as utils
 from result import Result
 
 LOG = logging.getLogger('__main__')
@@ -48,10 +48,10 @@ class Yum(object):
         found_pkgs = []
 
         match = (self.yum).searchGenerator(self.fields, [req.name])
-        for (full_string, pkg_name) in match:
-            if verify_name(str(full_string), req.name):
-                name, version, os, arch = self.get_match_details(
-                    str(full_string))
-                found_pkgs.append(Result(name, version, os, arch, self.name))
+        for (rpm, rpm_name) in match:
+            name = (re.search(r'(^[a-zA-z0-9\-]*)\-\d', str(rpm))).group(1)
+            if utils.verify_name(name, req.name):
+                name, version, os, arch = utils.get_rpm_details(str(rpm))
+                found_pkgs.append(Result(name, version, self.name, os, arch))
 
         return found_pkgs
