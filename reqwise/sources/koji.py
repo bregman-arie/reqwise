@@ -19,18 +19,18 @@ import requests
 
 import common.utils as utils
 from result import Result
+from source import Source
 
 LOG = logging.getLogger('__main__')
 
 
-class Koji(object):
+class Koji(Source):
     """Represents Fedora Koji build system"""
 
     def __init__(self, disabled=False):
-        self.name = 'koji'
+        super(Koji, self).__init__('koji', disabled)
         self.url = urlparse('http://koji.fedoraproject.org')
         self.cmd = 'koji search rpm -r '
-        self.disabled = disabled
         self.ready = self.setup()
 
     def setup(self):
@@ -43,7 +43,7 @@ class Koji(object):
 
         return (response.status_code and cmd_exists)
 
-    def search(self, req):
+    def search(self, req, long_ver=False):
         """Returns list of Result object based on the RPMs it found that
 
            match the requirement name.
@@ -53,9 +53,8 @@ class Koji(object):
                                 stdout=subprocess.PIPE).stdout.read()
 
         for rpm in rpms.split():
-            name, version, os, arch = utils.get_rpm_details(rpm)
+            name, version, os, arch = utils.get_rpm_details(rpm, long_ver)
             if ".src." not in rpm and utils.verify_name(name, req.name):
                 found_pkgs.append(Result(name, version, self.name, os, arch))
 
-        print found_pkgs
         return found_pkgs

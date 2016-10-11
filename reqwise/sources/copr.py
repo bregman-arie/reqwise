@@ -19,19 +19,20 @@ import requests
 
 import common.utils as utils
 from result import Result
+from source import Source
 
 LOG = logging.getLogger('__main__')
 
 
-class Copr(object):
+class Copr(Source):
     """Represents Fedora COPR"""
 
     def __init__(self, projects, disabled=True):
-        self.name = 'copr'
         self.copr = urlparse("https://copr.fedorainfracloud.org")
         self.projects = projects
         self.ready = self.setup()
-        self.disabled = False if self.projects else True
+        disabled = False if self.projects else True
+        super(Copr, self).__init__('copr', disabled)
 
     def setup(self):
         """Returns bool to indicate whether the source is ready
@@ -57,7 +58,7 @@ class Copr(object):
 
         return built_pkgs['builds']
 
-    def search(self, req):
+    def search(self, req, long_ver=False):
         """Returns list of Result object based on the RPMs it found that
 
            match the requirement name.

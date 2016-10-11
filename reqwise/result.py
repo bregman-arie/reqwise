@@ -22,8 +22,8 @@ HEADERS = ["Name", "Version", "Source"]
 
 class Result(object):
 
-    def __init__(self, rpm_name, version, source, os=None, arch=None):
-        self.rpm_name = rpm_name
+    def __init__(self, name, version, source, os=None, arch=None):
+        self.name = name
         self.version = version
         self.os = os
         self.arch = arch
@@ -39,7 +39,7 @@ class Result(object):
                     name, 'green') + " " + "="*16)
                 req_table = []
                 for result in results:
-                    req_table.append([colored(result.rpm_name, 'green'),
+                    req_table.append([colored(result.name, 'green'),
                                       colored(result.version, 'cyan'),
                                       colored(result.source, 'magenta')])
 
@@ -48,3 +48,11 @@ class Result(object):
                 LOG.info("\n" + "="*16 + " " + colored(
                     name, 'red') + " " + "="*16)
                 LOG.info("\n" + " "*16 + colored("Not Found", 'red') + " "*16)
+
+    def __eq__(self, other):
+        return (self.name == other.name and self.version == other.version and
+                self.source == other.source)
+
+    def __hash__(self):
+        return hash(('name', self.name, 'version', self.version,
+                     'source', self.source))

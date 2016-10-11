@@ -29,4 +29,8 @@ def create_parser():
     parser.add_argument('--copr', required=False, dest='copr_projects',
                         help='Copr projects')
 
+    parser.add_argument('--long', action='store_true',
+                        required=False, dest='long',
+                        help='Use RPM long version(e.g 1.2.1-3)')
+
     return parser

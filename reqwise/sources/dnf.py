@@ -17,20 +17,20 @@ import yum
 
 import common.utils as utils
 from result import Result
+from source import Source
 
 LOG = logging.getLogger('__main__')
 
 
-class Yum(object):
+class Yum(Source):
     """Represents the local defined repositories."""
 
     def __init__(self, repos='all', disabled=False, fields=['name']):
-        self.name = 'yum'
+        super(Yum, self).__init__('yum', disabled)
         self.repos = repos
         self.yum = yum.YumBase()
         self.repos = (self.yum).repos.listEnabled()
         self.ready = self.setup()
-        self.disabled = disabled
         self.fields = fields
 
     def setup(self):
@@ -40,7 +40,7 @@ class Yum(object):
         """
         return len(self.repos)
 
-    def search(self, req):
+    def search(self, req, long_ver=False):
         """Returns list of Result object based on the RPMs it found that
 
         match the requirement name.
@@ -51,7 +51,8 @@ class Yum(object):
         for (rpm, rpm_name) in match:
             name = (re.search(r'(^[a-zA-z0-9\-]*)\-\d', str(rpm))).group(1)
             if utils.verify_name(name, req.name):
-                name, version, os, arch = utils.get_rpm_details(str(rpm))
+                name, version, os, arch = utils.get_rpm_details(
+                    str(rpm), long_ver)
                 found_pkgs.append(Result(name, version, self.name, os, arch))
 
         return found_pkgs

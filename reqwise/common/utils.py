@@ -30,11 +30,14 @@ def verify_name(rpm_name, req):
     return rpm_name in [prefix+req for prefix in const.PREFIXES]
 
 
-def get_rpm_details(rpm):
+def get_rpm_details(rpm, long_ver=False):
     """Returns the name, version, os and arch of the given RPM string."""
 
     name = re.search(r'(^[a-zA-z0-9\-]*)\-\d', rpm)
-    version = re.search(r'((\d+\.)+\d+(\-\d+))', rpm)
+    if long_ver:
+        version = re.search(r'((\d+\.)+\d+(\-\d+))', rpm)
+    else:
+        version = re.search(r'((\d+\.)+\d+)', rpm)
     os = re.search(r'\.([a-z]+[0-9]{1,2})', rpm)
     arch = re.search(r'.([a-zA-Z]+)$', rpm)
 

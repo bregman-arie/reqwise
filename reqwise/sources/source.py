@@ -11,8 +11,9 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-import glob
+class Source(object):
+    """Represents source interface for RPMs."""
 
-def find_req_files(path):
-    """Returns list of absolute paths of the requirement files."""
-    return glob.glob(path + '/*requirements*')
+    def __init__(self, name, disabled):
+        self.name = name
+        self.disabled = disabled

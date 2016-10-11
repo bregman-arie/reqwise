@@ -11,6 +11,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import glob
 import logging
 import os
 
@@ -19,7 +20,6 @@ from result import Result
 from sources.copr import Copr
 from sources.dnf import Yum
 from sources.koji import Koji
-import utils
 
 LOG = logging.getLogger('__main__')
 
@@ -36,10 +36,11 @@ class Manager(object):
         self.results = {}
         self.path = args.path or os.getcwd()
         self.config = self.get_config()
-        self.req_files = utils.find_req_files(self.path)
+        self.req_files = self.find_req_files(self.path)
         self.requirements = self.get_requirements()
         self.copr_projects = args.copr_projects or None
         self.sources = self.get_sources()
+        self.long = args.long or None
 
     def get_requirements(self):
         """Returns list of requirement objects."""
@@ -66,16 +67,24 @@ class Manager(object):
         else:
             return os.path.isfile('/etc/reqwise/reqwise.conf')
 
+    @staticmethod
+    def find_req_files(path):
+        """Returns list of absolute paths of the requirement files."""
+        return glob.glob(path + '/*requirements*')
+
     def start(self):
         """Start searching for all the requirements in all the sources."""
+
+        self.req_files = self.find_req_files(self.path)
 
         for req in self.requirements:
             for source in self.sources:
                 if source.ready and not source.disabled:
                     LOG.debug("Looking in source: %s", source.name)
-                    source_results = source.search(req)
+                    source_results = source.search(req, self.long)
                     (self.results[req.name]).extend(source_results)
                 else:
                     LOG.debug("Source: %s is disabled", source.name)
+            self.results[req.name] = set(self.results[req.name])
 
         Result.report(self.results)

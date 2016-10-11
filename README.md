@@ -1,7 +1,9 @@
 ReqWise
 =======
 
-Requirements analysis for Python projects on RHEL/Fedora/CentOS
+If you need or prefer to use Linux RPMs only, ReqWise will read your Python project's
+requirements and seek for them in multiple different sources, while ensuring they
+are matching the version specified in the requirement files.
 
 Install
 -------
@@ -9,27 +11,6 @@ Install
 To install reqwise on your system, run the following command:
 
     sudo pip install .
-
-### Configuration
-
-Can be set in your current working directory (reqwise.conf) or
-in '/etc/reqwise/reqwise.conf'
-
-The configuration file consists of sources. Source is where reqwise
-will look for your requirement
-
-An example for configration file:
-
-    [copr]
-    el7-rhos9-test-deps
-    el7-rhos10-test-deps
-
-    [koji]
-    disabled=True
-
-    [yum]
-    repos=my_repo,another_repo
-
 
 Supported Sources
 -----------------
@@ -49,3 +30,27 @@ Search for the default requirements files in the current directory:
 Search the requirements in COPR:
 
     reqwise --copr el7-rhos9-test-deps
+
+By default, reqwise will look for RPM short version (x.y.z), you can search for the long version (x.y.z-w):
+
+    reqwise --long
+
+### Configuration (Optional)
+
+Can be set in your current working directory (reqwise.conf) or
+in '/etc/reqwise/reqwise.conf'
+
+The configuration file consists of sources. Source is where reqwise
+will look for your requirement
+
+An example for configration file:
+
+    [copr]
+    el7-rhos9-test-deps
+    el7-rhos10-test-deps
+
+    [koji]
+    disabled=True
+
+    [yum]
+    repos=my_repo,another_repo
