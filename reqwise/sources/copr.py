@@ -71,6 +71,7 @@ class Copr(Source):
             version = pkg['build']['built_packages'][0]['version']
             name = pkg['build']['built_packages'][0]['name']
             if utils.verify_name(str(name), req.name):
-                found_pkgs.append(Result(name, version, self.name))
+                found_pkgs.append(Result(name, version, self.name,
+                                         repo=self.projects))
 
         return found_pkgs

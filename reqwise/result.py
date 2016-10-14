@@ -17,17 +17,19 @@ from termcolor import colored
 
 LOG = logging.getLogger(__name__)
 
-HEADERS = ["Name", "Version", "Source"]
+HEADERS = ["Name", "Version", "Source", "Repository"]
 
 
 class Result(object):
 
-    def __init__(self, name, version, source, os=None, arch=None):
+    def __init__(self, name, version, source, os=None, arch=None,
+                 repo=''):
         self.name = name
         self.version = version
         self.os = os
         self.arch = arch
         self.source = source
+        self.repo = repo
 
     @staticmethod
     def report(all_results):
@@ -35,19 +37,20 @@ class Result(object):
 
         for name, results in all_results.items():
             if results:
-                LOG.info("\n" + "="*16 + " " + colored(
-                    name, 'green') + " " + "="*16)
+                LOG.info("\n" + "="*25 + " " + colored(
+                    name, 'green') + " " + "="*25)
                 req_table = []
                 for result in results:
                     req_table.append([colored(result.name, 'green'),
                                       colored(result.version, 'cyan'),
-                                      colored(result.source, 'magenta')])
+                                      colored(result.source, 'magenta'),
+                                      colored(result.repo, 'magenta')])
 
                 LOG.info(tabulate(req_table, HEADERS, tablefmt="fancy_grid"))
             else:
-                LOG.info("\n" + "="*16 + " " + colored(
+                LOG.info("\n" + "="*25 + " " + colored(
                     name, 'red') + " " + "="*16)
-                LOG.info("\n" + " "*16 + colored("Not Found", 'red') + " "*16)
+                LOG.info("\n" + " "*25 + colored("Not Found", 'red') + " "*25)
 
     def __eq__(self, other):
         return (self.name == other.name and self.version == other.version and

@@ -11,9 +11,8 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import dnf
 import logging
-import re
-import yum
 
 import common.utils as utils
 from result import Result
@@ -22,14 +21,13 @@ from source import Source
 LOG = logging.getLogger('__main__')
 
 
-class Yum(Source):
+class Dnf(Source):
     """Represents the local defined repositories."""
 
     def __init__(self, repos='all', disabled=False, fields=['name']):
-        super(Yum, self).__init__('yum', disabled)
+        super(Dnf, self).__init__('dnf', disabled)
         self.repos = repos
-        self.yum = yum.YumBase()
-        self.repos = (self.yum).repos.listEnabled()
+        self.base = dnf.Base()
         self.ready = self.setup()
         self.fields = fields
 
@@ -38,7 +36,9 @@ class Yum(Source):
 
            or not.
         """
-        return len(self.repos)
+        (self.base).read_all_repos()
+        (self.base).fill_sack()
+        return len(self.base.repos)
 
     def search(self, req, long_ver=False):
         """Returns list of Result object based on the RPMs it found that
@@ -46,13 +46,14 @@ class Yum(Source):
         match the requirement name.
         """
         found_pkgs = []
+        query = self.base.sack.query()
+        rpms = query.available()
+        rpms = rpms.filter(name__substr=req.name)
 
-        match = (self.yum).searchGenerator(self.fields, [req.name])
-        for (rpm, rpm_name) in match:
-            name = (re.search(r'(^[a-zA-z0-9\-]*)\-\d', str(rpm))).group(1)
-            if utils.verify_name(name, req.name):
-                name, version, os, arch = utils.get_rpm_details(
-                    str(rpm), long_ver)
-                found_pkgs.append(Result(name, version, self.name, os, arch))
+        for rpm in rpms:
+            if utils.verify_name(rpm.name, req.name):
+                found_pkgs.append(Result(rpm.name, rpm.version, self.name,
+                                         rpm.release, rpm.arch,
+                                         rpm.reponame))
 
         return found_pkgs
