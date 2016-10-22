@@ -54,7 +54,8 @@ class Koji(Source):
 
         for rpm in rpms.split():
             name, version, os, arch = utils.get_rpm_details(rpm, long_ver)
-            if ".src." not in rpm and utils.verify_name(name, req.name):
+            if (".src." not in rpm and utils.verify_name(name, req.name) and
+               req.meet_the_specs(version)):
                 found_pkgs.append(Result(name, version, self.name, os, arch))
 
         return found_pkgs

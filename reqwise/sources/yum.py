@@ -51,7 +51,8 @@ class Dnf(Source):
         rpms = rpms.filter(name__substr=req.name)
 
         for rpm in rpms:
-            if utils.verify_name(rpm.name, req.name):
+            if (utils.verify_name(rpm.name, req.name) and
+               req.meet_the_specs(rpm.version)):
                 found_pkgs.append(Result(rpm.name, rpm.version, self.name,
                                          rpm.release, rpm.arch,
                                          rpm.reponame))

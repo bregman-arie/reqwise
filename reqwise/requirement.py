@@ -11,9 +11,36 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+from distutils.version import StrictVersion
+import operator as py_operator
 
 
 class Requirement(object):
 
-    def __init__(self, name):
+    def __init__(self, name, specs):
         self.name = name
+        self.specs = specs
+
+    def meet_the_specs(self, version):
+        """Returns True if the given version meets the specs of the Requirement
+
+           instance.
+        """
+
+        op_map = {
+                    '==': 'eq', '=':  'eq', 'eq': 'eq',
+                    '<':  'lt', 'lt': 'lt',
+                    '<=': 'le', 'le': 'le',
+                    '>':  'gt', 'gt': 'gt',
+                    '>=': 'ge', 'ge': 'ge',
+                    '!=': 'ne', '<>': 'ne', 'ne': 'ne'
+                }
+
+        for spec in self.specs:
+            operator = op_map[spec[0]]
+            cmp_method = getattr(py_operator, operator)
+
+            if not cmp_method(StrictVersion(str(version)),
+                              StrictVersion(str(spec[1]))):
+                return False
+        return True

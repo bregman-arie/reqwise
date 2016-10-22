@@ -14,8 +14,9 @@
 import glob
 import logging
 import os
+from pkg_resources import Requirement as Req
 
-from requirement import Requirement
+import requirement
 from result import Result
 from sources.copr import Copr
 from sources.yum import Dnf
@@ -47,9 +48,12 @@ class Manager(object):
         requirements = []
         for req_file in self.req_files:
             with open(req_file, 'r') as req_f:
-                for req in req_f:
-                    requirements.append(Requirement(req.strip()))
-                    self.results[requirements[-1].name] = []
+                for line in req_f:
+                    if not line.startswith('#'):
+                        parsed_req = Req.parse(line.strip())
+                        requirements.append(requirement.Requirement(
+                            parsed_req.unsafe_name, parsed_req.specs))
+                        self.results[requirements[-1].name] = []
 
         return requirements
 
