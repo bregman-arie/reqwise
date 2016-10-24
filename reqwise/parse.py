@@ -20,17 +20,16 @@ def create_parser():
 
     parser = argparse.ArgumentParser(add_help=False)
 
-    parser.add_argument('--debug', required=False, action='store_true',
+    parser.add_argument('--debug', action='store_true',
                         dest="debug", help='debug flag')
 
-    parser.add_argument('--path', required=False, dest="path",
-                        help='Path for requirements files')
-
-    parser.add_argument('--copr', required=False, dest='copr_projects',
+    parser.add_argument('--copr', dest='copr_projects', nargs='+',
                         help='Copr projects')
 
-    parser.add_argument('--long', action='store_true',
-                        required=False, dest='long',
+    parser.add_argument('--long', action='store_true', dest='long',
                         help='Use RPM long version(e.g 1.2.1-3)')
+
+    parser.add_argument('-r', '--reqs', dest='reqs',
+                        help="Requirements files or Requirements files path")
 
     return parser

@@ -49,7 +49,7 @@ class Copr(Source):
     def get_project_id(self, name):
         """Returns COPR project id based on the name."""
         project_data_url = urljoin(self.copr.geturl(),
-                                   '/api_2/projects?name=' + self.projects)
+                                   '/api_2/projects?name=' + name)
         project_data = (requests.get(project_data_url)).json()
 
         return project_data['projects'][0]['project']['id']
@@ -68,15 +68,19 @@ class Copr(Source):
            match the requirement name.
         """
         found_pkgs = []
-        project_id = self.get_project_id(self.projects)
-        built_pkgs = self.get_built_packages(project_id)
 
-        for pkg in built_pkgs:
-            version = pkg['build']['built_packages'][0]['version']
-            name = pkg['build']['built_packages'][0]['name']
-            if (utils.verify_name(str(name), req.name) and
-               req.meet_the_specs(version)):
-                found_pkgs.append(Result(name, version, self.name,
-                                         repo=self.projects))
+        for project in self.projects:
+            LOG.debug("Looking in project %s", project)
+            project_id = self.get_project_id(project)
+            built_pkgs = self.get_built_packages(project_id)
+
+            for pkg in built_pkgs:
+                if pkg['build']['built_packages']:
+                    version = pkg['build']['built_packages'][0]['version']
+                    name = pkg['build']['built_packages'][0]['name']
+                    if (utils.verify_name(str(name), req.name) and
+                       req.meet_the_specs(version)):
+                        found_pkgs.append(Result(name, version, self.name,
+                                                 repo=project))
 
         return found_pkgs

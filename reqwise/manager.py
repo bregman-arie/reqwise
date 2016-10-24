@@ -36,9 +36,9 @@ class Manager(object):
     """
     def __init__(self, args):
         self.results = {}
-        self.path = args.path or os.getcwd()
         self.config = self.get_config()
-        self.req_files = self.find_req_files(self.path)
+        self.reqs = args.reqs or None
+        self.req_files = self.find_req_files(self.reqs)
         self.requirements = self.get_requirements()
         self.copr_projects = args.copr_projects or None
         self.sources = self.get_sources()
@@ -73,15 +73,28 @@ class Manager(object):
             return os.path.isfile('/etc/reqwise/reqwise.conf')
 
     @staticmethod
-    def find_req_files(path):
+    def find_req_files(reqs):
         """Returns list of absolute paths of the requirement files."""
-        return glob.glob(path + '/*requirements*')
+        if not reqs:
+            if glob.glob(os.getcwd() + '/*requirements*'):
+                return glob.glob(os.getcwd() + '/*requirements*')
+            else:
+                raise Exception("Couldn't find any requirement files.\
+ Please provide path or files")
+        elif os.path.isfile(reqs):
+            return [reqs]
+        elif glob.glob(reqs + '/*requirements*'):
+            return glob.glob(reqs + '/*requirements*')
+        else:
+            raise Exception("Couldn't find any requirements...\
+ tried {}".format(reqs))
 
     def start(self):
         """Start searching for all the requirements in all the sources."""
 
-        self.req_files = self.find_req_files(self.path)
+        self.req_files = self.find_req_files(self.reqs)
         one_source_active = False
+        LOG.info("Starts the search")
 
         for req in self.requirements:
             for source in self.sources:
@@ -90,8 +103,6 @@ class Manager(object):
                     LOG.debug("Looking in source: %s", source.name)
                     source_results = source.search(req, self.long)
                     (self.results[req.name]).extend(source_results)
-                else:
-                    LOG.debug("Source: %s is not available", source.name)
             self.results[req.name] = set(self.results[req.name])
 
         if one_source_active:
