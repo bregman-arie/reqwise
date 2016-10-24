@@ -37,8 +37,12 @@ class Dnf(Source):
            or not.
         """
         (self.base).read_all_repos()
-        (self.base).fill_sack()
-        return len(self.base.repos)
+        try:
+            (self.base).fill_sack()
+            return len(self.base.repos)
+        except Exception as e:
+            LOG.error(e)
+            return False
 
     def search(self, req, long_ver=False):
         """Returns list of Result object based on the RPMs it found that

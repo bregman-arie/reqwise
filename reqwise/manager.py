@@ -15,6 +15,7 @@ import glob
 import logging
 import os
 from pkg_resources import Requirement as Req
+from termcolor import colored
 
 import requirement
 from result import Result
@@ -80,15 +81,21 @@ class Manager(object):
         """Start searching for all the requirements in all the sources."""
 
         self.req_files = self.find_req_files(self.path)
+        one_source_active = False
 
         for req in self.requirements:
             for source in self.sources:
                 if source.ready and not source.disabled:
+                    one_source_active = True
                     LOG.debug("Looking in source: %s", source.name)
                     source_results = source.search(req, self.long)
                     (self.results[req.name]).extend(source_results)
                 else:
-                    LOG.debug("Source: %s is disabled", source.name)
+                    LOG.debug("Source: %s is not available", source.name)
             self.results[req.name] = set(self.results[req.name])
 
-        Result.report(self.results)
+        if one_source_active:
+            Result.report(self.results)
+        else:
+            LOG.error(colored(
+                "Couldn't use any source. Check your connectivity...", 'red'))

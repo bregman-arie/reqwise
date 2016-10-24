@@ -38,8 +38,12 @@ class Koji(Source):
 
            or not.
         """
-        response = requests.get(self.url.geturl())
-        cmd_exists = utils.cmd_exists(self.name)
+        try:
+            response = requests.get(self.url.geturl())
+            cmd_exists = utils.cmd_exists(self.name)
+        except Exception:
+            LOG.error("Failed to connect to Koji")
+            return False
 
         return (response.status_code and cmd_exists)
 

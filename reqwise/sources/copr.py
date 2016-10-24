@@ -39,8 +39,12 @@ class Copr(Source):
 
            or not.
         """
-        response = requests.get(self.copr.geturl())
-        return response.status_code
+        try:
+            response = requests.get(self.copr.geturl())
+            return response.status_code
+        except Exception:
+            LOG.error("Failed to connect to COPR")
+            return False
 
     def get_project_id(self, name):
         """Returns COPR project id based on the name."""
