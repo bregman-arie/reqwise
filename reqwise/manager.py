@@ -92,9 +92,10 @@ class Manager(object):
     def start(self):
         """Start searching for all the requirements in all the sources."""
 
+        LOG.info("Looking for requirement files")
         self.req_files = self.find_req_files(self.reqs)
         one_source_active = False
-        LOG.info("Starts the search")
+        LOG.info("Querying for RPMs")
 
         for req in self.requirements:
             for source in self.sources:

@@ -5,6 +5,8 @@ If you need or prefer to use Linux RPMs only, ReqWise will read your Python proj
 requirements and seek for them in multiple different sources, while ensuring they
 are matching the version specified in the requirement files.
 
+<div align="center"><img src="./doc/reqwise.png" alt="Reqwise output" width="400"></div><hr />
+
 Install
 -------
 
