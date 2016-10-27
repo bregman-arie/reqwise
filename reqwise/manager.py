@@ -43,6 +43,7 @@ class Manager(object):
         self.copr_projects = args.copr_projects or None
         self.sources = self.get_sources()
         self.long = args.long or None
+        self.missingOnly = args.missing or False
 
     def get_requirements(self):
         """Returns list of requirement objects."""
@@ -107,7 +108,7 @@ class Manager(object):
             self.results[req.name] = set(self.results[req.name])
 
         if one_source_active:
-            Result.report(self.results)
+            Result.report(self.results, self.missingOnly)
         else:
             LOG.error(colored(
                 "Couldn't use any source. Check your connectivity...", 'red'))

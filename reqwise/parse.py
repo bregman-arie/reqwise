@@ -32,4 +32,8 @@ def create_parser():
     parser.add_argument('-r', '--reqs', dest='reqs',
                         help="Requirements files or Requirements files path")
 
+    parser.add_argument('-m', '--missing', action='store_true',
+                        dest='missing',
+                        help="Show only missing packages")
+
     return parser

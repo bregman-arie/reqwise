@@ -18,6 +18,7 @@ from termcolor import colored
 LOG = logging.getLogger(__name__)
 
 HEADERS = ["Name", "Version", "Source", "Repository"]
+SPACES = 25
 
 
 class Result(object):
@@ -32,25 +33,27 @@ class Result(object):
         self.repo = repo
 
     @staticmethod
-    def report(all_results):
+    def report(all_results, missingOnly):
         """Logging all results with all the collected data."""
 
         for name, results in all_results.items():
             if results:
-                LOG.info("\n" + "="*25 + " " + colored(
-                    name, 'green') + " " + "="*25)
-                req_table = []
-                for result in results:
-                    req_table.append([colored(result.name, 'green'),
-                                      colored(result.version, 'cyan'),
-                                      colored(result.source, 'magenta'),
-                                      colored(result.repo, 'magenta')])
+                if not missingOnly:
+                    LOG.info("\n" + "="*SPACES + " " + colored(
+                        name, 'green') + " " + "="*SPACES)
+                    req_table = []
+                    for result in results:
+                        req_table.append([colored(result.name, 'green'),
+                                          colored(result.version, 'cyan'),
+                                          colored(result.source, 'magenta'),
+                                          colored(result.repo, 'magenta')])
 
-                LOG.info(tabulate(req_table, HEADERS, tablefmt="fancy_grid"))
+                    LOG.info(tabulate(req_table, HEADERS, tablefmt="fancy_grid"))
             else:
-                LOG.info("\n" + "="*25 + " " + colored(
+                LOG.info("\n" + "="*SPACES + " " + colored(
                     name, 'red') + " " + "="*16)
-                LOG.info("\n" + " "*25 + colored("Not Found", 'red') + " "*25)
+                LOG.info("\n" + " "*SPACES + colored(
+                    "Not Found", 'red') + " "*SPACES)
 
     def __eq__(self, other):
         return (self.name == other.name and self.version == other.version and
