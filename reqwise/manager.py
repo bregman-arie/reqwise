@@ -23,7 +23,7 @@ from sources.copr import Copr
 from sources.yum import Dnf
 from sources.koji import Koji
 
-LOG = logging.getLogger('__main__')
+LOG = logging.getLogger(__name__)
 
 
 class Manager(object):
@@ -34,6 +34,7 @@ class Manager(object):
        Reads the requirements.
        Search for requirements in the different sources.
     """
+
     def __init__(self, args):
         self.results = {}
         self.config = self.get_config()

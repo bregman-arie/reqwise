@@ -18,10 +18,14 @@ import argparse
 def create_parser():
     """Returns argument parser"""
 
-    parser = argparse.ArgumentParser(add_help=False)
+    parser = argparse.ArgumentParser(add_help=True)
 
     parser.add_argument('--debug', action='store_true',
                         dest="debug", help='debug flag')
+
+    parser.add_argument('-c', '--convert-only', action='store_true',
+                        dest='convert',
+                        help='Convert pip packages to simple RPMs list')
 
     parser.add_argument('--copr', dest='copr_projects', nargs='+',
                         help='Copr projects')
@@ -30,7 +34,7 @@ def create_parser():
                         help='Use RPM long version(e.g 1.2.1-3)')
 
     parser.add_argument('-r', '--reqs', dest='reqs',
-                        help="Requirements files or Requirements files path")
+                        help="Requirements files")
 
     parser.add_argument('-m', '--missing', action='store_true',
                         dest='missing',

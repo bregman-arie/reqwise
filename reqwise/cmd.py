@@ -38,7 +38,7 @@ def main():
 
     setup_logging(args.debug)
 
-    # Create and start THE manager
+    # Create and start reqwise manager
     manager = Manager(args)
     manager.start()
 

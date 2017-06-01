@@ -14,9 +14,9 @@
 import dnf
 import logging
 
-import common.utils as utils
-from result import Result
-from source import Source
+import reqwise.common.utils as utils
+from reqwise.result import Result
+from reqwise.sources.source import Source
 
 LOG = logging.getLogger('__main__')
 

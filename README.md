@@ -1,18 +1,24 @@
 ReqWise
 =======
 
-If you need or prefer to use Linux RPMs only, ReqWise will read your Python project's
-requirements and seek for them in multiple different sources, while ensuring they
-are matching the version specified in the requirement files.
+ReqWise allows you to:
+
+* Convert list of pip packages to RPMs
+* Search for RPMs in multiple different sources (e.g COPR, Koji, local defined repos)
 
 <div align="center"><img src="./doc/reqwise.png" alt="Reqwise output" width="400"></div><hr />
 
 Install
 -------
 
+Note: to use ReqWise you need to install python-dnf RPM since it's not available as pip
+
 To install reqwise on your system, run the following command:
 
+    sudo dnf install -y python-dnf
     sudo pip install .
+
+You may also run the script 'scripts/quick_install.sh' for quick installation.
 
 Supported Sources
 -----------------

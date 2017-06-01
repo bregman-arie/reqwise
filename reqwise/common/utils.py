@@ -14,7 +14,7 @@
 import re
 import subprocess
 
-import common.constants as const
+import reqwise.common.constants as const
 
 
 def verify_name(rpm_name, req):
@@ -27,7 +27,7 @@ def verify_name(rpm_name, req):
     Also, requirement might be called 'hacking' while the RPM is
     'python-hacking'.
     """
-    return rpm_name in [prefix+req for prefix in const.PREFIXES]
+    return rpm_name in [prefix + req for prefix in const.PREFIXES]
 
 
 def get_rpm_details(rpm, long_ver=False):
