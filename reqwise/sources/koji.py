@@ -41,13 +41,14 @@ class Koji(Source):
         try:
             response = requests.get(self.url.geturl())
             cmd_exists = utils.cmd_exists(self.name)
+            return True
         except Exception:
-            LOG.error("Failed to connect to Koji")
+            LOG.error("Failed to connect to Koji: %s" % Exception.message)
             return False
 
         return (response.status_code and cmd_exists)
 
-    def search(self, req, long_ver=False):
+    def search_all(self, req, long_ver=False):
         """Returns list of Result object based on the RPMs it found that
 
            match the requirement name.
@@ -63,3 +64,12 @@ class Koji(Source):
                 found_pkgs.append(Result(name, version, self.name, os, arch))
 
         return found_pkgs
+
+    def search_one(self, req):
+        """Returns the name of the RPM based on the given pip package"""
+        rpms = subprocess.Popen(self.cmd + req.name, shell=True,
+                                stdout=subprocess.PIPE).stdout.read()
+
+        for rpm in rpms.split():
+            name, version, os, arch = utils.get_rpm_details(rpm)
+            return name

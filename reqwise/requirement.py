@@ -12,7 +12,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 from distutils.version import StrictVersion
+import glob
+import logging
 import operator as py_operator
+import os
+
+LOG = logging.getLogger(__name__)
 
 
 class Requirement(object):
@@ -28,13 +33,13 @@ class Requirement(object):
         """
 
         op_map = {
-                    '==': 'eq', '=':  'eq', 'eq': 'eq',
-                    '<':  'lt', 'lt': 'lt',
-                    '<=': 'le', 'le': 'le',
-                    '>':  'gt', 'gt': 'gt',
-                    '>=': 'ge', 'ge': 'ge',
-                    '!=': 'ne', '<>': 'ne', 'ne': 'ne'
-                }
+            '==': 'eq', '=':  'eq', 'eq': 'eq',
+            '<':  'lt', 'lt': 'lt',
+            '<=': 'le', 'le': 'le',
+            '>':  'gt', 'gt': 'gt',
+            '>=': 'ge', 'ge': 'ge',
+            '!=': 'ne', '<>': 'ne', 'ne': 'ne'
+        }
 
         for spec in self.specs:
             operator = op_map[spec[0]]
@@ -44,3 +49,24 @@ class Requirement(object):
                               StrictVersion(str(spec[1]))):
                 return False
         return True
+
+    @staticmethod
+    def find_req_files(reqs):
+        """Returns list of absolute paths of the requirement files."""
+        if not reqs:
+            if glob.glob(os.getcwd() + '/*requirements*'):
+                req_files = glob.glob(os.getcwd() + '/*requirements*')
+                LOG.info("Found requirements files: %s" % req_files)
+                return req_files
+            else:
+                raise Exception("Couldn't find any requirement files.\
+ Please provide path or files")
+        elif os.path.isfile(reqs):
+            return [reqs]
+        elif glob.glob(reqs + '/*requirements*'):
+            req_files = glob.glob(reqs + '/*requirements*')
+            LOG.info("Found requirements files: %s" % req_files)
+            return req_files
+        else:
+            raise Exception("Couldn't find any requirements...\
+ tried {}".format(reqs))

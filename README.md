@@ -3,8 +3,8 @@ ReqWise
 
 ReqWise allows you to:
 
-* Convert list of pip packages to RPMs
-* Search for RPMs in multiple different sources (e.g COPR, Koji, local defined repos)
+* Convert list of pip packages to RPMs based on search results
+* Search for RPMs in multiple different sources (See 'Supported Sources')
 
 <div align="center"><img src="./doc/reqwise.png" alt="Reqwise output" width="400"></div><hr />
 
@@ -15,7 +15,7 @@ Note: to use ReqWise you need to install python-dnf RPM since it's not available
 
 To install reqwise on your system, run the following command:
 
-    sudo dnf install -y python-dnf
+    sudo dnf install -y python-dnf koji
     sudo pip install .
 
 You may also run the script 'scripts/quick_install.sh' for quick installation.
@@ -27,17 +27,26 @@ Supported Sources
 - COPR    (https://copr.fedorainfracloud.org)
 - Koji    (http://koji.fedoraproject.org)
 
+Note: by default ReqWise will search only in YUM/DNF.
 
-Examples
---------
+Usage
+-----
 
-Search for the default requirements files in the current directory:
+You can use reqwise as CLI utility or as a python module in your programs.
+
+### CLI
+
+Search for RPMs in YUM/DNF with the requirement files in the current directory:
 
     reqwise
 
 Search the requirements in COPR:
 
     reqwise --copr el7-rhos9-test-deps
+
+Convert from pip to RPM, without searching for the RPM in the different sources:
+
+    reqwise --convert-only
 
 By default, reqwise will look for RPM short version (x.y.z), you can search for the long version (x.y.z-w):
 

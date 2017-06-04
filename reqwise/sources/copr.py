@@ -62,7 +62,7 @@ class Copr(Source):
 
         return built_pkgs['builds']
 
-    def search(self, req, long_ver=False):
+    def search_all(self, req, long_ver=False):
         """Returns list of Result object based on the RPMs it found that
 
            match the requirement name.
@@ -84,3 +84,15 @@ class Copr(Source):
                                                  repo=project))
 
         return found_pkgs
+
+    def search_one(self, req):
+        """Returns the name of the RPM based on the given pip package"""
+        for project in self.projects:
+            LOG.debug("Looking in project %s", project)
+            project_id = self.get_project_id(project)
+            built_pkgs = self.get_built_packages(project_id)
+
+            for pkg in built_pkgs:
+                if pkg['build']['built_packages']:
+                    name = pkg['build']['built_packages'][0]['name']
+                    return name

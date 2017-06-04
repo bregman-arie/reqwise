@@ -39,8 +39,8 @@ class Result(object):
         for name, results in all_results.items():
             if results:
                 if not missingOnly:
-                    LOG.info("\n" + "="*SPACES + " " + colored(
-                        name, 'green') + " " + "="*SPACES)
+                    LOG.info("\n" + "=" * SPACES + " " + colored(
+                        name, 'green') + " " + "=" * SPACES)
                     req_table = []
                     for result in results:
                         req_table.append([colored(result.name, 'green'),
@@ -48,12 +48,13 @@ class Result(object):
                                           colored(result.source, 'magenta'),
                                           colored(result.repo, 'magenta')])
 
-                    LOG.info(tabulate(req_table, HEADERS, tablefmt="fancy_grid"))
+                    LOG.info(tabulate(req_table,
+                                      HEADERS, tablefmt="fancy_grid"))
             else:
-                LOG.info("\n" + "="*SPACES + " " + colored(
-                    name, 'red') + " " + "="*16)
-                LOG.info("\n" + " "*SPACES + colored(
-                    "Not Found", 'red') + " "*SPACES)
+                LOG.info("\n" + "=" * SPACES + " " + colored(
+                    name, 'red') + " " + "=" * 16)
+                LOG.info("\n" + " " * SPACES + colored(
+                    "Not Found", 'red') + " " * SPACES)
 
     def __eq__(self, other):
         return (self.name == other.name and self.version == other.version and

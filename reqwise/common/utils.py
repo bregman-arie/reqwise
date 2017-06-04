@@ -38,7 +38,7 @@ def get_rpm_details(rpm, long_ver=False):
         version = re.search(r'((\d+\.)+\d+(\-\d+))', rpm)
     else:
         version = re.search(r'((\d+\.)+\d+)', rpm)
-    os = re.search(r'\.([a-z]+[0-9]{1,2})', rpm)
+    os = re.search(r'\.(([a-z]+_)?[0-9]*[a-z]+[0-9]*)', rpm)
     arch = re.search(r'.([a-zA-Z]+)$', rpm)
 
     return name.group(1), version.group(1), os.group(1), arch.group(1)

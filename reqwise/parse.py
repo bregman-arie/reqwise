@@ -20,8 +20,8 @@ def create_parser():
 
     parser = argparse.ArgumentParser(add_help=True)
 
-    parser.add_argument('--debug', action='store_true',
-                        dest="debug", help='debug flag')
+    parser.add_argument('--debug', '-d', action='store_true',
+                        dest="debug", help='Turn on debug')
 
     parser.add_argument('-c', '--convert-only', action='store_true',
                         dest='convert',
@@ -39,5 +39,9 @@ def create_parser():
     parser.add_argument('-m', '--missing', action='store_true',
                         dest='missing',
                         help="Show only missing packages")
+
+    parser.add_argument('-k', '--koji', action='store_true',
+                        dest='koji',
+                        help="Search for RPMs also in Koji")
 
     return parser

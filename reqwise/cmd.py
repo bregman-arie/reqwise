@@ -17,16 +17,12 @@ import sys
 from manager import Manager
 import parse
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
-LOG = logging.getLogger(__name__)
-
 
 def setup_logging(debug):
     """Sets the logging."""
-    if debug:
-        LOG.setLevel(logging.DEBUG)
-    else:
-        LOG.setLevel(logging.INFO)
+    format = '%(message)s'
+    level = logging.DEBUG if debug else logging.INFO
+    logging.basicConfig(level=level, format=format)
 
 
 def main():

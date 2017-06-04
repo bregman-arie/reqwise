@@ -44,16 +44,20 @@ class Dnf(Source):
             LOG.error(e)
             return False
 
-    def search(self, req, long_ver=False):
+    def query_rpms(self, req):
+        """Returns the result of the RPM(s) query in DNF/YUM."""
+        query = self.base.sack.query()
+        rpms = query.available()
+        rpms = rpms.filter(name__substr=req.name)
+        return rpms
+
+    def search_all(self, req, long_ver=False):
         """Returns list of Result object based on the RPMs it found that
 
         match the requirement name.
         """
         found_pkgs = []
-        query = self.base.sack.query()
-        rpms = query.available()
-        rpms = rpms.filter(name__substr=req.name)
-
+        rpms = self.query_rpms(req)
         for rpm in rpms:
             if (utils.verify_name(rpm.name, req.name) and
                req.meet_the_specs(rpm.version)):
@@ -62,3 +66,12 @@ class Dnf(Source):
                                          rpm.reponame))
 
         return found_pkgs
+
+    def search_one(self, req):
+        """Returns the name of the RPM based on the given pip package"""
+        rpms = self.query_rpms(req)
+
+        if rpms:
+            return rpms[0].name
+        else:
+            return

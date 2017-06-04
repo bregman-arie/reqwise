@@ -11,17 +11,15 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-import glob
 import logging
 import os
 from pkg_resources import Requirement as Req
-from termcolor import colored
 
-import requirement
-from result import Result
-from sources.copr import Copr
-from sources.yum import Dnf
-from sources.koji import Koji
+from reqwise.requirement import Requirement
+from reqwise.result import Result
+from reqwise.sources.copr import Copr
+from reqwise.sources.yum import Dnf
+from reqwise.sources.koji import Koji
 
 LOG = logging.getLogger(__name__)
 
@@ -39,33 +37,41 @@ class Manager(object):
         self.results = {}
         self.config = self.get_config()
         self.reqs = args.reqs or None
-        self.req_files = self.find_req_files(self.reqs)
+        self.req_files = Requirement.find_req_files(self.reqs)
         self.requirements = self.get_requirements()
         self.copr_projects = args.copr_projects or None
+        self.koji = args.koji or False
         self.sources = self.get_sources()
         self.long = args.long or None
-        self.missingOnly = args.missing or False
+        self.missing_only = args.missing or False
+        self.convert_only = args.convert or False
 
     def get_requirements(self):
         """Returns list of requirement objects."""
         requirements = []
+        LOG.debug("Reading requirements")
+
         for req_file in self.req_files:
             with open(req_file, 'r') as req_f:
                 for line in req_f:
                     if not line.startswith('#'):
                         parsed_req = Req.parse(line.strip())
-                        requirements.append(requirement.Requirement(
+                        requirements.append(Requirement(
                             parsed_req.unsafe_name, parsed_req.specs))
                         self.results[requirements[-1].name] = []
 
         return requirements
 
     def get_sources(self):
-        """Returns list of sources."""
-        if self.config:
-            return []
-        else:
-            return [Dnf(), Copr(self.copr_projects), Koji()]
+        """Returns list of sources to use."""
+        LOG.info("Generating list of active sources")
+        sources = [Dnf()]
+        if self.koji:
+            sources.append(Koji())
+        if self.copr_projects:
+            sources.append(Copr(self.copr_projects))
+
+        return sources
 
     def get_config(self):
         """Returns config file path."""
@@ -74,42 +80,42 @@ class Manager(object):
         else:
             return os.path.isfile('/etc/reqwise/reqwise.conf')
 
-    @staticmethod
-    def find_req_files(reqs):
-        """Returns list of absolute paths of the requirement files."""
-        if not reqs:
-            if glob.glob(os.getcwd() + '/*requirements*'):
-                return glob.glob(os.getcwd() + '/*requirements*')
-            else:
-                raise Exception("Couldn't find any requirement files.\
- Please provide path or files")
-        elif os.path.isfile(reqs):
-            return [reqs]
-        elif glob.glob(reqs + '/*requirements*'):
-            return glob.glob(reqs + '/*requirements*')
-        else:
-            raise Exception("Couldn't find any requirements...\
- tried {}".format(reqs))
+    def convert_and_search(self):
+        """Convert pip packages list to RPMs and search for them in them
 
-    def start(self):
-        """Start searching for all the requirements in all the sources."""
-
-        LOG.info("Looking for requirement files")
-        self.req_files = self.find_req_files(self.reqs)
-        one_source_active = False
+        different sources.
+        """
         LOG.info("Querying for RPMs")
-
         for req in self.requirements:
             for source in self.sources:
                 if source.ready and not source.disabled:
-                    one_source_active = True
-                    LOG.debug("Looking in source: %s", source.name)
-                    source_results = source.search(req, self.long)
+                    LOG.debug("Looking for %s in source: %s" % (req.name,
+                                                                source.name,))
+                    source_results = source.search_all(req, self.long)
                     (self.results[req.name]).extend(source_results)
             self.results[req.name] = set(self.results[req.name])
 
-        if one_source_active:
-            Result.report(self.results, self.missingOnly)
+        Result.report(self.results, self.missing_only)
+
+    def convert(self):
+        """Convert pip packages list to RPMs based on first search result"""
+        rpms = []
+        for req in self.requirements:
+            for source in self.sources:
+                if source.ready and not source.disabled:
+                    rpm = source.search_one(req)
+                    if rpm:
+                        rpms.append(rpm)
+                        break
+        LOG.info('\n'.join(set(rpms)))
+
+    def start(self):
+        """Start the run of reqwise."""
+
+        if not self.convert_only:
+            LOG.debug("Converting pip packages list to RPM(s) and searching \
+for the RPM(s) in the different sources.")
+            self.convert_and_search()
         else:
-            LOG.error(colored(
-                "Couldn't use any source. Check your connectivity...", 'red'))
+            LOG.debug("Converting pip packages list to RPM(s)")
+            self.convert()
